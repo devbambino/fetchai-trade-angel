@@ -82,7 +82,6 @@ async def request_market_data(ctx: Context):
 NEWS_AGENT_ADDRESS = "agent1..." # To be replaced with actual address
 MARKET_DATA_AGENT_ADDRESS = "agent1..." # To be replaced with actual address
 RISK_AGENT_ADDRESS = "agent1..." # To be replaced with actual address
-FEAR_GREED_AGENT_ADDRESS = "agent1..." # To be replaced with actual address
 
 # Initialize the TradeAngel main agent
 agent = Agent(
@@ -108,3 +107,12 @@ agent_storage = {
 }
 
 # Message handlers and AI integration
+
+# On startup
+@agent.on_event("startup")
+async def on_startup(ctx: Context):
+    ctx.logger.info("TradeAngel starting up...")
+
+# Run the agent
+if __name__ == "__main__":
+    agent.run()
