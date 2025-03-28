@@ -1,14 +1,14 @@
-from uagents import Agent, Context, Model
-from typing import Optional
-from asi.llm import query_llm
+from uagents import Agent, Bureau, Context, Model, Protocol
+from uagents.setup import fund_agent_if_low
+from typing import List, Dict, Optional
+from asi.llm import query_asi
+from pydantic import Field
+import asyncio
+from datetime import datetime, timedelta
+import json
 
-# Initialize the TradeAngel agent
-agent = Agent(name="TradeAngel Assistant", mailbox=True, port=8001)
-
-# Hosted agent addresses (Agentverse addresses)
-NEWS_AGENT = "agent1qxxxxxxxxxxxxxxxxxxxxxxxxxx"
-MARKET_DATA_AGENT = "agent1qyyyyyyyyyyyyyyyyyyyyyy"
-RISK_AGENT = "agent1qzzzzzzzzzzzzzzzzzzzzzzzz"
+# Import Agentverse SDK components
+from uagents.network import get_agentverse_client
 
 # Data models
 class MarketDataRequest(Model):
@@ -28,16 +28,43 @@ class NewsResponse(Model):
     sentiment_score: float
     timestamp: str
 
-class InvestmentRecommendation(Model):
+class NewsData(Model):
+    source: str
+    title: str
+    summary: str
+    sentiment: float = Field(default=0.0)  # -1.0 to 1.0
+    timestamp: str
+
+class MarketData(Model):
+    symbol: str
+    price: float
+    change_24h: float
+    volume_24h: float
+    market_cap: float
+    timestamp: str
+
+class FearGreedIndex(Model):
+    value: int  # 0-100
+    classification: str
+    timestamp: str
+
+class RiskAssessment(Model):
+    risk_level: str  # Low, Medium, High
+    factors: List[str]
+    timestamp: str
+
+class CryptoRecommendation(Model):
+    coin: str
     action: str  # BUY, SELL, HOLD
-    confidence: float
+    confidence: float  # 0.0 to 1.0
     reasoning: str
-    coins: list[dict]
+    timestamp: str
 
 @agent.on_event("startup")
 async def introduce_agent(ctx: Context):
-    """Introduce the CryptoSage agent"""
-    ctx.logger.info(f"CryptoSage assistant initialized with address {agent.address}")
+    """Introduces the TradeAngel agent"""
+    ctx.logger.info(f"TradeAngel assistant initialized with address {agent.address}")
+    print(f"Hello! I'm {agent.name} and my address is {agent.address}.")
 
 @agent.on_interval(period=4 * 60 * 60.0)  # Every 4 hours
 async def request_market_data(ctx: Context):
@@ -49,5 +76,35 @@ async def request_market_data(ctx: Context):
     await ctx.send(NEWS_AGENT, NewsRequest(
         topics=["crypto markets", "bitcoin price", "ethereum price", "u.s. stocks markets"]
     ))
+
+
+# Define agent addresses for Agentverse hosted agents
+NEWS_AGENT_ADDRESS = "agent1..." # To be replaced with actual address
+MARKET_DATA_AGENT_ADDRESS = "agent1..." # To be replaced with actual address
+RISK_AGENT_ADDRESS = "agent1..." # To be replaced with actual address
+FEAR_GREED_AGENT_ADDRESS = "agent1..." # To be replaced with actual address
+
+# Initialize the TradeAngel main agent
+agent = Agent(
+    name="TradeAngel Assistant",
+    port=8000,
+    seed="project_seed_phrase",
+    endpoint=["http://localhost:8000/submit"],
+)
+
+fund_agent_if_low(agent.wallet.address())
+
+# Initialize storage for collected data
+agent_storage = {
+    "news_data": [],
+    "market_data": null,
+    "fear_greed_index": None,
+    "risk_assessment": None,
+    "user_preferences": {
+        "risk_tolerance": "medium",  # low, medium, high
+        "investment_horizon": "medium",  # short, medium, long
+        "coins_of_interest": ["BTC", "ETH", "SOL"]
+    }
+}
 
 # Message handlers and AI integration
