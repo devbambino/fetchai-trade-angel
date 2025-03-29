@@ -73,6 +73,21 @@ def get_mock_fear_greed_index(limit: int = 1) -> List[FearGreedData]:
     
     return mock_data
 
+async def process_response(ctx: Context, msg: FearGreedRequest) -> FearGreedResponse:
+    """Process the request and return formatted response"""
+    fgi_data = get_fear_greed_index(msg.limit)
+
+    for entry in fgi_data:
+        ctx.logger.info(f"Fear and Greed Index: {entry.value}")
+        ctx.logger.info(f"Classification: {entry.value_classification}")
+        ctx.logger.info(f"Timestamp: {entry.timestamp}")
+    
+    return FearGreedResponse(
+        data=fgi_data,
+        status="success",
+        timestamp=datetime.now().isoformat()
+    )
+
 @agent.on_message(model=FearGreedRequest)
 async def handle_fear_greed_request(ctx: Context, sender: str, msg: FearGreedRequest):
     """Handle incoming request for Fear & Greed Index data"""

@@ -82,7 +82,7 @@ async def request_market_data(ctx: Context):
 NEWS_AGENT_ADDRESS = "agent1..." # To be replaced with actual address
 MARKET_DATA_AGENT_ADDRESS = "agent1..." # To be replaced with actual address
 RISK_AGENT_ADDRESS = "agent1..." # To be replaced with actual address
-FEAR_GREED_AGENT_ADDRESS = "agent1..." # To be replaced with actual address
+FEAR_GREED_AGENT_ADDRESS = "agent1qfff9tcxq2xn6n3664f2jpqmgza0lpnlz33m9prcj9f0a4kn0yzpsfa6yuz" # To be replaced with actual address
 
 # Initialize the TradeAngel main agent
 agent = Agent(
