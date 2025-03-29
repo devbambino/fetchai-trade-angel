@@ -113,6 +113,21 @@ def get_mock_news(limit: int = 5) -> List[NewsData]:
     ]
     return mock_news[:limit]
 
+async def process_response(ctx: Context, msg: FearGreedRequest) -> NewsResponse:
+    """Process the request and return formatted response"""
+    news_items = get_crypto_news(msg.limit)
+
+    for entry in news_items:
+        ctx.logger.info(f"Source: {entry.source}")
+        ctx.logger.info(f"Title: {entry.title}")
+        ctx.logger.info(f"Sentiment: {entry.sentiment}")
+    
+    return NewsResponse(
+        data=news_items,
+        status="success",
+        timestamp=datetime.now().isoformat()
+    )
+
 @agent.on_message(model=NewsRequest)
 async def handle_news_request(ctx: Context, sender: str, msg: NewsRequest):
     """Handle incoming request for crypto news"""
@@ -132,6 +147,8 @@ async def handle_news_request(ctx: Context, sender: str, msg: NewsRequest):
 async def startup(ctx: Context):
     """Initialize agent"""
     ctx.logger.info(f"Crypto News Agent started. Address: {agent.address}")
+    dummy_request = NewsRequest(limit=5)
+    await process_response(ctx, dummy_request)
 
 if __name__ == "__main__":
     agent.run()
