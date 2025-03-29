@@ -25,7 +25,10 @@ def get_fear_greed_index(limit: int = 1) -> List[FearGreedData]:
     url = f"https://api.alternative.me/fng/?limit={limit}"
     
     try:
-        response = requests.get(url)
+        params = {
+            "limit": limit
+        }
+        response = requests.get(url, params=params)
         
         if response.status_code == 200:
             data = response.json()
@@ -40,10 +43,6 @@ def get_fear_greed_index(limit: int = 1) -> List[FearGreedData]:
                 
                 # Timestamp
                 timestamp = datetime.fromtimestamp(int(item.get('timestamp', 0))).isoformat()
-
-                ctx.logger.info(f"Fear and Greed Index: {value}")
-                ctx.logger.info(f"Classification: {classification}")
-                ctx.logger.info(f"Timestamp: {timestamp}")
                 
                 fgi_data.append(FearGreedData(
                     value=value,
@@ -60,8 +59,8 @@ def get_fear_greed_index(limit: int = 1) -> List[FearGreedData]:
 
 def get_mock_fear_greed_index(limit: int = 1) -> List[FearGreedData]:
     """Generate mock Fear & Greed Index data for testing"""
-    classifications = ["Extreme Fear", "Fear", "Neutral", "Greed", "Extreme Greed"]
-    values = [15, 35, 50, 75, 90]
+    classifications = ["Neutral", "Greed", "Extreme Greed"]
+    values = [50, 75, 90]
     
     mock_data = []
     for i in range(min(limit, len(classifications))):
