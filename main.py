@@ -91,26 +91,65 @@ user_preferences = {
     "favorite_coins": ["bitcoin", "ethereum", "solana"]
 }
 
+# Message handlers and AI integration
 @agent.on_event("startup")
 async def introduce_agent(ctx: Context):
     """Introduces the TradeAngel agent"""
     ctx.logger.info(f"Hello! I'm {agent.name} and my address is {agent.address}.")
     print(f"Hello! I'm {agent.name} and my address is {agent.address}.")
+    await request_all_data(ctx)
 
-@agent.on_interval(period=4 * 60 * 60.0)  # Every 4 hours
-async def request_market_data(ctx: Context):
-    """Request market data for monitored assets"""
-    await ctx.send(MARKET_DATA_AGENT, MarketDataRequest(
-        coins=["bitcoin", "ethereum", "solana"]
-    ))
+@agent.on_interval(period=2 * 60.0)  # Runs every 2 minutes
+async def request_all_data(ctx: Context):
+    """Requests data from all agents every 2 minutes."""
+    try:
+        await ctx.send(NEWS_AGENT, NewsRequest())
+        await ctx.send(MARKET_DATA_AGENT, MarketRequest(coin_ids=COINS))
+        await ctx.send(FEAR_GREED_AGENT, FearGreedRequest())
+        await ctx.send(RISK_AGENT, RiskRequest(risk_tolerance=user_preferences["risk_tolerance"]))
+    except Exception as e:
+        ctx.logger.error(f"Error requesting data: {e}")
+
+@agent.on_message(model=NewsResponse)
+async def handle_news_response(ctx: Context, sender: str, msg: NewsResponse):
+    """Handles incoming news data."""
+    global news_data
+    news_data = msg
+    ctx.logger.info(f"Received news data from {sender}")
+    ctx.logger.info(f"Received news data:{msg}")
+    await generate_recommendation_if_ready(ctx)
+
+@agent.on_message(model=MarketResponse)
+async def handle_market_response(ctx: Context, sender: str, msg: MarketResponse):
+    """Handles incoming market data."""
+    global market_data
+    market_data = msg
+    ctx.logger.info(f"Received market data from {sender}")
+    ctx.logger.info(f"Received market data:{msg}")
+    await generate_recommendation_if_ready(ctx)
+
+@agent.on_message(model=FearGreedResponse)
+async def handle_fear_greed_response(ctx: Context, sender: str, msg: FearGreedResponse):
+    """Handles incoming fear and greed index data."""
+    global fear_greed_data
+    fear_greed_data = msg
+    ctx.logger.info(f"Received fear and greed data from {sender}")
+    ctx.logger.info(f"Received fear and greed data:{msg}")
+    await generate_recommendation_if_ready(ctx)
+
+@agent.on_message(model=RiskResponse)
+async def handle_risk_response(ctx: Context, sender: str, msg: RiskResponse):
+    """Handles incoming risk assessment."""
+    global risk_assessment
+    risk_assessment = msg
+    ctx.logger.info(f"Received risk assessment from {sender}")
+    ctx.logger.info(f"Received risk assessment:{msg}")
+    await generate_recommendation_if_ready(ctx)
+
+async def generate_recommendation_if_ready(ctx: Context):
+    """Generates investment recommendations if all required data is available."""
+    global news_data, market_data, fear_greed_data, risk_assessment
     
-    await ctx.send(NEWS_AGENT, NewsRequest(
-        topics=["crypto markets", "bitcoin price", "ethereum price", "u.s. stocks markets"]
-    ))
-
-# Message handlers and AI integration
-
-
 # Run the agent
 if __name__ == "__main__":
     agent.run()
