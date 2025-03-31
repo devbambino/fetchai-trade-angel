@@ -117,13 +117,8 @@ async def handle_news_request(ctx: Context, sender: str, msg: NewsRequest):
     """Handle incoming request for crypto news"""
     ctx.logger.info(f"Received news request from {sender} for {msg.limit} news items")
     
-    news_items = get_crypto_news(msg.limit)
-    
-    response = NewsResponse(
-        data=news_items,
-        status="success",
-        timestamp=datetime.now().isoformat()
-    )
+    #news_items = get_crypto_news(msg.limit)
+    response = await process_response(ctx, msg)
     
     await ctx.send(sender, response)
 
@@ -131,8 +126,8 @@ async def handle_news_request(ctx: Context, sender: str, msg: NewsRequest):
 async def startup(ctx: Context):
     """Initialize agent"""
     ctx.logger.info(f"Crypto News Agent started. Address: {agent.address}")
-    dummy_request = NewsRequest(limit=5)
-    await process_response(ctx, dummy_request)
+    #dummy_request = NewsRequest(limit=5)
+    #await process_response(ctx, dummy_request)
 
 if __name__ == "__main__":
     agent.run()

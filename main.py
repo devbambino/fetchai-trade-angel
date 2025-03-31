@@ -5,7 +5,7 @@ from datetime import datetime
 from asi.llm import query_llm
 
 # Initialize the TradeAngel main agent
-agent = Agent(name="TradeAngel Agent", mailbox=True, port = 8001)
+agent = Agent(name="TradeAngel Agent", port=8001, endpoint=("http://127.0.0.1:8001/submit"),mailbox=True,)
 
 # Define agent addresses for Agentverse hosted agents
 NEWS_AGENT_ADDRESS = "agent1qvldq34su4py9y5d9rqrcwl07ah0h6825dhhlamzkzpl3dvkq9w4uhz02px" # To be replaced with actual address
@@ -103,10 +103,10 @@ async def introduce_agent(ctx: Context):
 async def request_all_data(ctx: Context):
     """Requests data from all agents every 2 minutes."""
     try:
-        await ctx.send(NEWS_AGENT, NewsRequest())
-        await ctx.send(MARKET_DATA_AGENT, MarketRequest(coin_ids=COINS))
-        await ctx.send(FEAR_GREED_AGENT, FearGreedRequest())
-        await ctx.send(RISK_AGENT, RiskRequest(risk_tolerance=user_preferences["risk_tolerance"]))
+        await ctx.send(NEWS_AGENT_ADDRESS, NewsRequest())
+        await ctx.send(MARKET_DATA_AGENT_ADDRESS, MarketRequest(coin_ids=COINS))
+        await ctx.send(FEAR_GREED_AGENT_ADDRESS, FearGreedRequest())
+        await ctx.send(RISK_AGENT_ADDRESS, RiskRequest(risk_tolerance=user_preferences["risk_tolerance"]))
     except Exception as e:
         ctx.logger.error(f"Error requesting data: {e}")
 
@@ -228,6 +228,45 @@ async def analyze_with_llm(ctx: Context) -> List[CryptoRecommendation]:
     action = None
     confidence = None
     reasoning = None
+    
+    for line in response.split("\n"):
+        line = line.strip()
+        if line.startswith("COIN:"):
+            # Save previous recommendation if exists
+            if current_coin and action:
+                recommendations.append(CryptoRecommendation(
+                    coin=current_coin,
+                    action=action,
+                    confidence=confidence or 0.7,
+                    reasoning=reasoning or "Based on market analysis.",
+                    timestamp=datetime.now().isoformat()
+                ))
+            
+            current_coin = line.replace("COIN:", "").strip().lower()
+            action = None
+            confidence = None
+            reasoning = None
+        elif line.startswith("ACTION:"):
+            action = line.replace("ACTION:", "").strip()
+        elif line.startswith("CONFIDENCE:"):
+            try:
+                confidence = float(line.replace("CONFIDENCE:", "").strip())
+            except:
+                confidence = 0.7  # Default confidence if parsing fails
+        elif line.startswith("REASONING:"):
+            reasoning = line.replace("REASONING:", "").strip()
+    
+    # Add the last recommendation
+    if current_coin and action:
+        recommendations.append(CryptoRecommendation(
+            coin=current_coin,
+            action=action,
+            confidence=confidence or 0.7,
+            reasoning=reasoning or "Based on market analysis.",
+            timestamp=datetime.now().isoformat()
+        ))
+    
+    return recommendations
     
 # Run the agent
 if __name__ == "__main__":

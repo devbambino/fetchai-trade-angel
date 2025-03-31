@@ -106,13 +106,8 @@ async def handle_market_request(ctx: Context, sender: str, msg: MarketRequest):
     """Handle incoming request for market data"""
     ctx.logger.info(f"Received market data request from {sender} for coins: {msg.coin_ids}")
     
-    market_data = get_market_data(msg.coin_ids)
-    
-    response = MarketResponse(
-        data=market_data,
-        status="success",
-        timestamp=datetime.now().isoformat()
-    )
+    #market_data = get_market_data(msg.coin_ids)
+    response = await process_response(ctx, msg)
     
     await ctx.send(sender, response)
 
@@ -120,8 +115,8 @@ async def handle_market_request(ctx: Context, sender: str, msg: MarketRequest):
 async def startup(ctx: Context):
     """Initialize agent"""
     ctx.logger.info(f"Crypto Market Data Agent started. Address: {agent.address}")
-    dummy_request = MarketRequest(coin_ids=["bitcoin","ethereum", "solana"])
-    await process_response(ctx, dummy_request)
+    #dummy_request = MarketRequest(coin_ids=["bitcoin","ethereum", "solana"])
+    #await process_response(ctx, dummy_request)
 
 if __name__ == "__main__":
     agent.run()

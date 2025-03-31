@@ -92,13 +92,8 @@ async def handle_fear_greed_request(ctx: Context, sender: str, msg: FearGreedReq
     """Handle incoming request for Fear & Greed Index data"""
     ctx.logger.info(f"Received Fear & Greed Index request from {sender} for limit: {msg.limit}")
     
-    fgi_data = get_fear_greed_index(msg.limit)
-    
-    response = FearGreedResponse(
-        data=fgi_data,
-        status="success",
-        timestamp=datetime.now().isoformat()
-    )
+    #fgi_data = get_fear_greed_index(msg.limit)
+    response = await process_response(ctx, msg)
     
     await ctx.send(sender, response)
 
@@ -106,8 +101,8 @@ async def handle_fear_greed_request(ctx: Context, sender: str, msg: FearGreedReq
 async def startup(ctx: Context):
     """Initialize agent"""
     ctx.logger.info(f"Crypto Fear & Greed Agent started. Address: {agent.address}")
-    dummy_request = FearGreedRequest(limit=1)
-    await process_response(ctx, dummy_request)
+    #dummy_request = FearGreedRequest(limit=1)
+    #await process_response(ctx, dummy_request)
 
 if __name__ == "__main__":
     agent.run()

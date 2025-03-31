@@ -77,13 +77,8 @@ async def handle_risk_request(ctx: Context, sender: str, msg: RiskRequest):
     """Handle incoming request for risk assessment"""
     ctx.logger.info(f"Received risk assessment request from {sender} with risk tolerance: {msg.risk_tolerance}")
     
-    risk_assessment = assess_risk(msg.risk_tolerance)
-    
-    response = RiskResponse(
-        data=risk_assessment,
-        status="success",
-        timestamp=datetime.now().isoformat()
-    )
+    #risk_assessment = assess_risk(msg.risk_tolerance)
+    response = await process_response(ctx, msg)
     
     await ctx.send(sender, response)
 
@@ -91,8 +86,8 @@ async def handle_risk_request(ctx: Context, sender: str, msg: RiskRequest):
 async def startup(ctx: Context):
     """Initialize agent"""
     ctx.logger.info(f"Crypto Risk Assessment Agent started. Address: {agent.address}")
-    dummy_request = RiskRequest(risk_tolerance=5)
-    await process_response(ctx, dummy_request)
+    #dummy_request = RiskRequest(risk_tolerance=5)
+    #await process_response(ctx, dummy_request)
 
 if __name__ == "__main__":
     agent.run()
