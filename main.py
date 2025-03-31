@@ -149,6 +149,85 @@ async def handle_risk_response(ctx: Context, sender: str, msg: RiskResponse):
 async def generate_recommendation_if_ready(ctx: Context):
     """Generates investment recommendations if all required data is available."""
     global news_data, market_data, fear_greed_data, risk_assessment
+    if news_data and market_data and fear_greed_data and risk_assessment:
+        ctx.logger.info("All data received, generating recommendations...")
+        
+        # Prepare data for analysis
+        recommendations = await analyze_with_llm(ctx)
+        
+        # Log recommendations
+        for rec in recommendations:
+            ctx.logger.info(f"RECOMMENDATION: {rec.coin} - {rec.action} (Confidence: {rec.confidence})")
+            ctx.logger.info(f"Reasoning: {rec.reasoning}")
+        
+        # Reset data to ensure fresh analysis next time
+        # Comment if you prefer to not reseting after each analysis
+        news_data = None
+        market_data = None
+        fear_greed_data = None
+        risk_assessment = None
+    else:  # More data points needed
+        ctx.logger.info("Waiting for more data to generate recommendations...")
+        ctx.logger.info(f"Current data status: News: {news_data is not None}, Market: {market_data is not None}, "
+                        f"Fear & Greed: {fear_greed_data is not None}, Risk: {risk_assessment is not None}")
+
+async def analyze_with_llm(ctx: Context) -> List[CryptoRecommendation]:
+    """Uses ASI-1 Mini to analyze data and generate recommendations."""
+    recommendations = []
+    
+    # Format context data
+    market_summary = "\n".join([
+        f"- {coin.name} ({coin.symbol}): ${coin.current_price:.2f}, 24h change: {coin.price_change_24h:.2f}%"
+        for coin in market_data.data
+    ])
+    
+    news_summary = "\n".join([
+        f"- {item.title} (Sentiment: {item.sentiment:.2f}): {item.summary}"
+        for item in news_data.data[:3]  # Only use the top 3 news items
+    ])
+    
+    fear_greed_summary = f"Fear & Greed Index: {fear_greed_data.data[0].value} ({fear_greed_data.data[0].value_classification})"
+    
+    risk_summary = f"Risk Assessment: Level {risk_assessment.data.risk_level}/5\nFactors: {', '.join(risk_assessment.data.factors)}"
+    
+    # Prepare prompt for ASI-1 Mini
+    prompt = f"""
+    As a crypto investment advisor, analyze the following market data and provide investment recommendations for each coin.
+    
+    Current Market Data:
+    {market_summary}
+    
+    Recent News:
+    {news_summary}
+    
+    Market Sentiment:
+    {fear_greed_summary}
+    
+    Risk Analysis:
+    {risk_summary}
+    
+    User Risk Tolerance: {user_preferences["risk_tolerance"]}/5
+    
+    For each coin (Bitcoin, Ethereum, Solana), provide:
+    1. An action (BUY, SELL, or HOLD)
+    2. Confidence level (0.0 to 1.0)
+    3. Brief reasoning (1-2 sentences) in easy to understand language
+    
+    Format each recommendation as:
+    COIN: [coin_name]
+    ACTION: [BUY/SELL/HOLD]
+    CONFIDENCE: [0.0-1.0]
+    REASONING: [brief explanation]
+    """
+    
+    # Query ASI-1 Mini
+    response = query_llm(prompt)
+    
+    # Parse the response to extract recommendations
+    current_coin = None
+    action = None
+    confidence = None
+    reasoning = None
     
 # Run the agent
 if __name__ == "__main__":
