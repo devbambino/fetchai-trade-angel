@@ -1,17 +1,23 @@
+import os
 from uagents import Agent, Context, Bureau
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 from asi.llm import query_llm
 
+SEED_PHRASE = os.getenv("SEED_PHRASE")
+
 # Initialize the TradeAngel main agent
-agent = Agent(name="TradeAngel Agent", port=8001, endpoint=("http://127.0.0.1:8001/submit"),mailbox=True,)
+agent = Agent(name="TradeAngel Agent",
+    seed=SEED_PHRASE,
+    mailbox=True
+)
 
 # Define agent addresses for Agentverse hosted agents
-NEWS_AGENT_ADDRESS = "agent1qvldq34su4py9y5d9rqrcwl07ah0h6825dhhlamzkzpl3dvkq9w4uhz02px" # To be replaced with actual address
-MARKET_DATA_AGENT_ADDRESS = "agent1q23w0r6t9j8aneev4gg02k2kp72yqfnphqsjddxn2kwj754ysn42kkl0g9d" # To be replaced with actual address
-RISK_AGENT_ADDRESS = "agent1qv43f94u8r43xqdn0dgg27n7zfxe0tekx8d00c0hrsug69dz47swwagcgwh" # To be replaced with actual address
-FEAR_GREED_AGENT_ADDRESS = "agent1qfff9tcxq2xn6n3664f2jpqmgza0lpnlz33m9prcj9f0a4kn0yzpsfa6yuz" # To be replaced with actual address
+NEWS_AGENT_ADDRESS = os.getenv("NEWS_AGENT_ADDRESS")
+MARKET_DATA_AGENT_ADDRESS = os.getenv("MARKET_DATA_AGENT_ADDRESS")
+RISK_AGENT_ADDRESS = os.getenv("RISK_AGENT_ADDRESS")
+FEAR_GREED_AGENT_ADDRESS = os.getenv("FEAR_GREED_AGENT_ADDRESS")
 
 # Coins to monitor
 COINS = ["bitcoin", "ethereum", "solana"]
@@ -99,9 +105,9 @@ async def introduce_agent(ctx: Context):
     print(f"Hello! I'm {agent.name} and my address is {agent.address}.")
     await request_all_data(ctx)
 
-@agent.on_interval(period=2 * 60.0)  # Runs every 2 minutes
+@agent.on_interval(period=60 * 60.0)  # Runs every hour
 async def request_all_data(ctx: Context):
-    """Requests data from all agents every 2 minutes."""
+    """Requests data from all agents on a hourly basis."""
     try:
         await ctx.send(NEWS_AGENT_ADDRESS, NewsRequest())
         await ctx.send(MARKET_DATA_AGENT_ADDRESS, MarketRequest(coin_ids=COINS))
