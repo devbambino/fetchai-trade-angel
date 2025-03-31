@@ -27,16 +27,22 @@ def get_crypto_news(limit: int = 5) -> List[NewsData]:
     """Fetch cryptocurrency news from CryptoPanic API"""
     # Get an API key at https://cryptopanic.com/developers/api/
     api_key = os.getenv("CRYPTOPANIC_API_KEY")
-    url = f"https://cryptopanic.com/api/v1/posts/?auth_token={api_key}&kind=news&filter=hot"
+    url = f"https://cryptopanic.com/api/v1/posts/"
     
     try:
-        response = requests.get(url)
+        params = {
+            "auth_token": api_key,
+            "kind":"news",
+            "filter":"hot"
+
+        }
+        response = requests.get(url, params=params)
         
-        if response.status_code == 200:
-            data = response.json()
-            news_items = []
+        data = response.json()
+
+        news_items = []
             
-            for item in data.get('results', [])[:limit]:
+        for item in data.get('results', [])[:limit]:
                 # Simple sentiment analysis (could be replaced with a more sophisticated approach)
                 title = item.get('title', '')
                 sentiment = 0.0  # Neutral by default
@@ -55,65 +61,43 @@ def get_crypto_news(limit: int = 5) -> List[NewsData]:
                         sentiment -= 0.2
                 
                 sentiment = max(-1.0, min(1.0, sentiment))  # Clamp to -1.0 to 1.0
+
+                published_at = item.get('published_at', datetime.now().isoformat())
+
+                source = item.get('source', None)
+                source_title = "Unknown"
+                if source:
+                    source_title = source.get('title', 'Unknown')                
                 
                 news_items.append(NewsData(
-                    source=item.get('source', null).get('title', 'Unknown'),
-                    title=item.get('title', ''),
-                    summary=item.get('title', ''),  # Using title as summary since API doesn't provide summaries
+                    source=source_title,
+                    title=title,
+                    summary=title,  # Using title as summary since API doesn't provide summaries
                     sentiment=sentiment,
-                    timestamp=item.get('published_at', datetime.now().isoformat())
+                    timestamp=published_at
                 ))
             
-            return news_items
-        else:
-            # If API fails, return mock data
-            return get_mock_news(limit)
-    except Exception as e:
-        print(f"Error fetching crypto news: {e}")
-        return get_mock_news(limit)
+        return news_items
+    except requests.exceptions.RequestException as e:
+        return f"API Request Error: {str(e)}"
+
+    except json.JSONDecodeError:
+        return "API Error: Unable to parse JSON response"
 
 def get_mock_news(limit: int = 5) -> List[NewsData]:
     """Generate mock news data for testing"""
     mock_news = [
-        NewsData(
-            source="CryptoNews",
-            title="Bitcoin Surges Past $50,000 as Institutional Interest Grows",
-            summary="Bitcoin has surpassed the $50,000 mark as institutional investors continue to show interest.",
-            sentiment=0.8,
-            timestamp=datetime.now().isoformat()
-        ),
         NewsData(
             source="CoinDesk",
             title="Ethereum 2.0 Upgrade Progress: What You Need to Know",
             summary="The Ethereum 2.0 upgrade is progressing well with increasing validator participation.",
             sentiment=0.5,
             timestamp=datetime.now().isoformat()
-        ),
-        NewsData(
-            source="Blockchain Times",
-            title="Solana Experiences Network Downtime, Developers Working on Fix",
-            summary="Solana blockchain faced temporary downtime due to network congestion.",
-            sentiment=-0.6,
-            timestamp=datetime.now().isoformat()
-        ),
-        NewsData(
-            source="Crypto Insider",
-            title="Regulatory Concerns Grow as Countries Consider Crypto Restrictions",
-            summary="Several countries are introducing stricter regulations for cryptocurrency trading.",
-            sentiment=-0.7,
-            timestamp=datetime.now().isoformat()
-        ),
-        NewsData(
-            source="DeFi Daily",
-            title="New DeFi Protocol Launches with Record TVL",
-            summary="A new decentralized finance protocol has launched with over $1B in total value locked.",
-            sentiment=0.6,
-            timestamp=datetime.now().isoformat()
         )
     ]
     return mock_news[:limit]
 
-async def process_response(ctx: Context, msg: FearGreedRequest) -> NewsResponse:
+async def process_response(ctx: Context, msg: NewsRequest) -> NewsResponse:
     """Process the request and return formatted response"""
     news_items = get_crypto_news(msg.limit)
 

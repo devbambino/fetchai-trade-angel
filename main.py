@@ -79,7 +79,7 @@ async def request_market_data(ctx: Context):
 
 
 # Define agent addresses for Agentverse hosted agents
-NEWS_AGENT_ADDRESS = "agent1..." # To be replaced with actual address
+NEWS_AGENT_ADDRESS = "agent1qvldq34su4py9y5d9rqrcwl07ah0h6825dhhlamzkzpl3dvkq9w4uhz02px" # To be replaced with actual address
 MARKET_DATA_AGENT_ADDRESS = "agent1..." # To be replaced with actual address
 RISK_AGENT_ADDRESS = "agent1..." # To be replaced with actual address
 FEAR_GREED_AGENT_ADDRESS = "agent1qfff9tcxq2xn6n3664f2jpqmgza0lpnlz33m9prcj9f0a4kn0yzpsfa6yuz" # To be replaced with actual address
