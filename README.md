@@ -4,6 +4,14 @@
 
 TradeAngel is an advanced multi-agent AI system built on Fetch.ai's technology stack that helps retail crypto investors make more informed decisions through 24/7 market monitoring, sentiment analysis, and personalized recommendations.
 
+## 🏆 Impact and Inspiration
+
+TradeAngel addresses the critical problem of information overload and emotional trading that plagues retail crypto investors. By leveraging Fetch.ai's agent ecosystem and ASI-1 Mini for intelligent decision-making, the platform democratizes access to sophisticated market analysis previously available only to institutional investors.
+
+Our solution demonstrates the practical applications of the Fetch.ai SDK by creating a network of specialized agents that work in concert through the Agentverse framework to deliver real-world value.
+
+This project was inspired on DevBambino's personal experience with retail investing, who tired of losing money in the crypto markets decided to create his own manual process(collecting and analazying crypto and stocks markets news, fear indexes, and price data) to make informed investing decisions. That manual process was the reference for Trade Angel automated analysis.
+
 ## 🌟 Features
 
 - **Multi-Agent Intelligence Network**:
@@ -56,23 +64,16 @@ TradeAngel is an advanced multi-agent AI system built on Fetch.ai's technology s
    cd fetchai-trade-angel
    ```
 
-2. **Set up a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
+2. **Install dependencies**:
    ```bash
    pip install uagents asi-one requests python-dotenv
    ```
 
-4. **Create an environment file**:
+3. **Create an environment file**:
    ```bash
    # Create .env file with the following variables
    ASI1_API_KEY=your_asi_mini_api_key
-   CRYPTOPANIC_API_KEY=your_cryptopanic_api_key  # Optional but recommended
-   COINGECKO_API_KEY=your_coingecko_api_key  # Optional
+   CRYPTOPANIC_API_KEY=your_cryptopanic_api_key  
    ```
 
 ## 🏃 Running TradeAngel
@@ -143,15 +144,13 @@ TradeAngel/
 - **Mobile Alerts**: Push notifications for critical market events
 - **Advanced Multi-chain Support**: Beyond major cryptocurrencies to emerging protocols
 
-## 🏆 Hackathon Impact
-
-TradeAngel addresses the critical problem of information overload and emotional trading that plagues retail crypto investors. By leveraging Fetch.ai's agent ecosystem and ASI-1 Mini for intelligent decision-making, the platform democratizes access to sophisticated market analysis previously available only to institutional investors.
-
-Our solution demonstrates the practical applications of the Fetch.ai SDK by creating a network of specialized agents that work in concert through the Agentverse framework to deliver real-world value.
-
 ## 👥 Team
 
 - [Dev Bambino] - Architecture & Agent Development, ASI-1 Mini Integration & Data Analysis, API Integration & Technical Documentation
+
+## ❤️ Acknowledgements and Thanks
+
+The resources and workshops offered by the Fecth.ai team were super helpful. We also found the documentation in fetch.ai website easy to understand and easy to implement. Thanks to them we were able to complete our project in less than a week.
 
 ---
 
