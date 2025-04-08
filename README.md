@@ -56,28 +56,26 @@ TradeAngel is an advanced multi-agent AI system built on Fetch.ai's technology s
    cd fetchai-trade-angel
    ```
 
-2. **Set up a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
+2. **Install dependencies**:
    ```bash
    pip install uagents asi-one requests python-dotenv
    ```
-
-4. **Create an environment file**:
+3. **Copy .env.example to .env and fill in the appropriate values.**
    ```bash
-   # Create .env file with the following variables
+   cp .env.example .env
+   ```
+ 
+4. **Configure your environment variables**:
+   ```bash
    ASI1_API_KEY=your_asi_mini_api_key
-   CRYPTOPANIC_API_KEY=your_cryptopanic_api_key  # Optional but recommended
-   COINGECKO_API_KEY=your_coingecko_api_key  # Optional
+   CRYPTOPANIC_API_KEY=your_cryptopanic_api_key  # Optional
    ```
 
 ## 🏃 Running TradeAngel
 
-1. **Start all agent services in separate terminals**:
+The four agents are going to be running already in the Agentverse so you don't need to run them locally. You only need to run the main agent which is the one requesting info from the other four agents regularly in order to make investing recommendations for the coins list provided in the "user_preferences" variable in main.py. The same variable is also useful for adjusting the risk profile(risk_tolerance) of the user, from 1 conservative, to 5 agressive.
+
+1. **(OPTIONAL)Start all agent services in separate terminals(OPTIONAL)**:
 
    ```bash
    # Terminal 1: News Agent

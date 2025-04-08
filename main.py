@@ -105,9 +105,9 @@ async def introduce_agent(ctx: Context):
     print(f"Hello! I'm {agent.name} and my address is {agent.address}.")
     await request_all_data(ctx)
 
-@agent.on_interval(period=60 * 60.0)  # Runs every hour
+@agent.on_interval(period=5 * 60.0)  # Runs every 5 min
 async def request_all_data(ctx: Context):
-    """Requests data from all agents on a hourly basis."""
+    """Requests data from all agents on a 5 min basis."""
     try:
         await ctx.send(NEWS_AGENT_ADDRESS, NewsRequest())
         await ctx.send(MARKET_DATA_AGENT_ADDRESS, MarketRequest(coin_ids=COINS))
