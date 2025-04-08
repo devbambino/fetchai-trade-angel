@@ -69,15 +69,11 @@ This project was inspired on DevBambino's personal experience with retail invest
    pip install uagents asi-one requests python-dotenv
    ```
 
-3. **Copy .env.example to .env and fill in the appropriate values.**
-   ```bash
-   cp .env.example .env
-   ```
- 
-4. **Configure your environment variables**:
+4. **Create an environment file**:
    ```bash
    ASI1_API_KEY=your_asi_mini_api_key
-   CRYPTOPANIC_API_KEY=your_cryptopanic_api_key  # Optional
+   CRYPTOPANIC_API_KEY=your_cryptopanic_api_key  # Optional but recommended
+   COINGECKO_API_KEY=your_coingecko_api_key  # Optional
    ```
 
 ## 🏃 Running TradeAngel
